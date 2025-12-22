@@ -1,0 +1,54 @@
+vone/
+├── app/                          # Next.js App Router
+│   ├── auth/                     # Authentication pages
+│   │   └── page.tsx             # Combined signup/login page
+│   ├── dashboard/               # Protected user area
+│   │   └── page.tsx             # User dashboard
+│   ├── globals.css              # Global styles with Tailwind
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Landing page
+│
+├── lib/                         # Utilities and configurations
+│   └── supabase.ts              # Supabase client setup
+│
+├── components/                  # Reusable components (empty for now)
+│
+├── node_modules/                # Dependencies
+│
+├── .env.local                   # Environment variables (create this)
+├── .gitignore                   # Git ignore rules
+├── next.config.js               # Next.js configuration
+├── package.json                 # Project dependencies
+├── package-lock.json            # Dependency lock file
+├── postcss.config.mjs           # PostCSS configuration
+├── tailwind.config.ts           # Tailwind CSS configuration
+├── tsconfig.json                # TypeScript configuration
+│
+├── README.md                    # Main documentation
+├── QUICKSTART.md                # Quick start guide
+├── SUPABASE_SETUP.md           # Supabase setup instructions
+├── supabase-schema.sql          # Database schema
+└── setup.sh                     # Setup script
+
+Key Files:
+-----------
+🔐 Authentication:
+  - app/auth/page.tsx            → Combined signup/login UI
+  - lib/supabase.ts              → Supabase client
+
+📱 Pages:
+  - app/page.tsx                 → Landing page
+  - app/dashboard/page.tsx       → User dashboard (protected)
+  - app/layout.tsx               → Global layout
+
+🎨 Styling:
+  - app/globals.css              → Global styles
+  - tailwind.config.ts           → Tailwind configuration
+
+🗄️ Database:
+  - supabase-schema.sql          → Complete DB schema
+
+📚 Documentation:
+  - README.md                    → Full documentation
+  - QUICKSTART.md                → 5-minute setup guide
+  - SUPABASE_SETUP.md           → Detailed Supabase guide

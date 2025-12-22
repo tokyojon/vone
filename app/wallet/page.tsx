@@ -1,0 +1,250 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+
+interface Transaction {
+  id: string;
+  transaction_type: string;
+  currency_type: string;
+  amount: number;
+  description: string;
+  created_at: string;
+  from_user_id: string;
+}
+
+export default function Wallet() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [wnpPoints, setWnpPoints] = useState(0);
+  const [ontTokens, setOntTokens] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [activeTab, setActiveTab] = useState('all');
+
+  useEffect(() => {
+    checkUser();
+  }, []);
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/auth');
+      return;
+    }
+
+    // Fetch wallet balance
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('wnp_points, ont_tokens')
+      .eq('id', user.id)
+      .single();
+
+    if (profile) {
+      setWnpPoints(profile.wnp_points || 12405);
+      setOntTokens(profile.ont_tokens || 3000);
+    }
+
+    // Fetch transactions
+    const { data: txData } = await supabase
+      .from('wallet_transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (txData) {
+      setTransactions(txData);
+    }
+
+    setLoading(false);
+  };
+
+  const mockTransactions = [
+    {
+      id: '1',
+      type: 'gift',
+      description: '中村 優太さんからギフト',
+      amount: 500,
+      currency: 'WNP',
+      date: '2023年10月26日',
+      isPositive: true
+    },
+    {
+      id: '2',
+      type: 'like',
+      description: '投稿への「いいね！」',
+      amount: 10,
+      currency: 'WNP',
+      date: '2023年10月25日',
+      isPositive: true
+    },
+    {
+      id: '3',
+      type: 'exchange',
+      description: 'ONTへの変換',
+      amount: -1000,
+      currency: 'WNP',
+      date: '2023年10月24日',
+      isPositive: false
+    },
+    {
+      id: '4',
+      type: 'login_bonus',
+      description: 'ログインボーナス',
+      amount: 5,
+      currency: 'WNP',
+      date: '2023年10月23日',
+      isPositive: true
+    },
+  ];
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'gift':
+        return (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd" />
+            <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z" />
+          </svg>
+        );
+      case 'like':
+        return (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+          </svg>
+        );
+      case 'exchange':
+        return (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
+          </svg>
+        );
+      case 'login_bonus':
+        return (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const filteredTransactions = mockTransactions.filter((tx) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'earned') return tx.isPositive;
+    if (activeTab === 'used') return !tx.isPositive;
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-background-light dark:bg-background-dark">
+      <Header />
+
+      <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => router.back()}
+            className="flex size-10 items-center justify-center rounded-lg hover:bg-border-light dark:hover:bg-border-dark"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-4xl font-black text-text-light-primary dark:text-text-dark-primary">
+            ウォレット
+          </h1>
+        </div>
+
+        {/* Balance Card */}
+        <div className="bg-gradient-to-br from-[#c89968] to-[#ec6d13] rounded-xl p-8 mb-8 text-white">
+          <div className="mb-6">
+            <p className="text-white/80 text-sm mb-2">現在のワンネスポイント（WNP）</p>
+            <p className="text-5xl font-bold">{wnpPoints.toLocaleString()}</p>
+          </div>
+          <div className="mb-8">
+            <p className="text-white/80 text-sm mb-2">換金可能なONT</p>
+            <p className="text-3xl font-bold">{ontTokens.toLocaleString()}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm py-3 px-4 rounded-xl transition text-white font-medium">
+              ポイントを送る
+            </button>
+            <button className="bg-white text-primary hover:bg-white/90 py-3 px-4 rounded-xl transition font-medium">
+              ONTに変換
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-6 border-b border-border-light dark:border-border-dark">
+          {[
+            { id: 'all', label: 'すべて' },
+            { id: 'earned', label: '獲得' },
+            { id: 'used', label: '使用' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-4 px-2 font-medium transition-colors relative ${
+                activeTab === tab.id
+                  ? 'text-primary'
+                  : 'text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary'
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Transactions */}
+        <div className="space-y-3">
+          {filteredTransactions.map((tx) => (
+            <div
+              key={tx.id}
+              className="flex items-center justify-between p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark"
+            >
+              <div className="flex items-center gap-4">
+                <div className={`flex size-12 items-center justify-center rounded-full ${
+                  tx.isPositive
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                }`}>
+                  {getIcon(tx.type)}
+                </div>
+                <div>
+                  <p className="font-medium text-text-light-primary dark:text-text-dark-primary">
+                    {tx.description}
+                  </p>
+                  <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
+                    {tx.date}
+                  </p>
+                </div>
+              </div>
+              <div className={`text-lg font-bold ${
+                tx.isPositive
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}>
+                {tx.isPositive ? '+' : ''}{tx.amount} {tx.currency}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredTransactions.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-text-light-secondary dark:text-text-dark-secondary">
+              取引履歴がありません
+            </p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

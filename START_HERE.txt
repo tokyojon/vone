@@ -1,0 +1,109 @@
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║     🎌  ONENESS KINGDOM - ワンネスキングダム  🎌                       ║
+║                                                                       ║
+║     Next.js + Supabase Authentication Platform                       ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+📋 QUICK START (2 MINUTES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Create environment file
+   → Run: ./create-env.sh
+   
+Step 2: Setup Supabase database
+   → Open: https://mvivdndbuyfzsbtszqir.supabase.co
+   → Go to: SQL Editor
+   → Copy/paste: contents of supabase-schema.sql
+   → Click: Run
+   
+Step 3: Start the app
+   → Run: npm run dev
+   → Open: http://localhost:3000
+
+
+📁 PROJECT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pages:
+  /                    → Landing page with features
+  /auth               → Combined signup/login page
+  /dashboard          → Protected user dashboard
+
+Key Features:
+  ✅ Email authentication
+  ✅ Google OAuth (optional)
+  ✅ Apple OAuth (optional)
+  ✅ User profiles with stats
+  ✅ Activity tracking
+  ✅ Notifications
+  ✅ Protected routes
+
+
+🗂️ DOCUMENTATION FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+README.md            → Full project documentation
+SETUP.md            → Step-by-step setup instructions (START HERE)
+QUICKSTART.md       → 5-minute quick start guide
+SUPABASE_SETUP.md   → Detailed Supabase configuration
+
+
+🛠️ COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+./create-env.sh      → Create .env.local with your credentials
+npm run dev          → Start development server
+npm run build        → Build for production
+npm run start        → Start production server
+npm run lint         → Run ESLint
+
+
+🎨 DESIGN COLORS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Background:  #f5f5f0  (Beige)
+Primary:     #d97706  (Orange)
+Secondary:   #c89968  (Gold)
+Accent:      #7dd3fc  (Light Blue)
+
+
+🔗 YOUR SUPABASE PROJECT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+URL: https://mvivdndbuyfzsbtszqir.supabase.co
+
+Go here to:
+  • Run the database schema (SQL Editor)
+  • View users (Authentication → Users)
+  • Check data (Database → Table Editor)
+  • Configure OAuth (Authentication → Providers)
+
+
+⚡ NEXT STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Read SETUP.md for detailed instructions
+2. Run ./create-env.sh to create environment file
+3. Execute supabase-schema.sql in Supabase SQL Editor
+4. Run npm run dev
+5. Visit http://localhost:3000
+6. Test signup at http://localhost:3000/auth
+7. Check dashboard at http://localhost:3000/dashboard
+
+
+📚 NEED HELP?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+→ Check browser console (F12) for errors
+→ Check terminal output where npm run dev is running
+→ Review Supabase logs (Logs section in dashboard)
+→ Read SETUP.md troubleshooting section
+
+
+════════════════════════════════════════════════════════════════════════
+
+             🚀 Ready to build! Run: ./create-env.sh
+             
+════════════════════════════════════════════════════════════════════════
