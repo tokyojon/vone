@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
+import Header from '@/components/Header';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,124 +42,86 @@ export default function Dashboard() {
     };
   }, [router]);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/auth');
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f0] flex items-center justify-center">
+      <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#c89968] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">読み込み中...</p>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-text-light-secondary dark:text-text-dark-secondary">読み込み中...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f0]">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-[#c89968] rounded"></div>
-              <span className="text-xl font-semibold text-gray-900">ソーシャル</span>
-            </div>
-            
-            <div className="flex items-center gap-6">
-              <a href="#" className="text-gray-600 hover:text-gray-900">ホーム</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">マーケットプレイス</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">ウォレット</a>
-              
-              <div className="flex items-center gap-3">
-                <button className="p-2 hover:bg-gray-100 rounded-full">
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                </button>
-                
-                <button 
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#d97706] text-white rounded-lg hover:bg-[#c89968] transition"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  ログアウト
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-background-light dark:bg-background-dark">
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <div className="bg-surface-light dark:bg-surface-dark rounded-xl shadow p-6 border border-border-light dark:border-border-dark">
+              <h2 className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary mb-2">
                 こんにちは、{user?.user_metadata?.username || 'ユーザー名'}さん
               </h2>
-              <p className="text-gray-600 mb-6">ようこそ、ワンネスキングダムへ！</p>
+              <p className="text-text-light-secondary dark:text-text-dark-secondary mb-6">ようこそ、ワンネスキングダムへ！</p>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-[#d97706]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <span className="text-sm text-gray-600">貢献ポイント</span>
+                    <span className="text-sm text-text-light-secondary dark:text-text-dark-secondary">貢献ポイント</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">2,450</p>
+                  <p className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary">2,450</p>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-[#d97706]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm text-gray-600">完了したタスク</span>
+                    <span className="text-sm text-text-light-secondary dark:text-text-dark-secondary">完了したタスク</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">18</p>
+                  <p className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary">18</p>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-background-light dark:bg-background-dark rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-5 h-5 text-[#d97706]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                       <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
                     </svg>
-                    <span className="text-sm text-gray-600">レビュー投稿数</span>
+                    <span className="text-sm text-text-light-secondary dark:text-text-dark-secondary">レビュー投稿数</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">32</p>
+                  <p className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary">32</p>
                 </div>
               </div>
 
-              <div className="border-t pt-4">
-                <h3 className="font-semibold text-gray-900 mb-3">最近の活動</h3>
+              <div className="border-t border-border-light dark:border-border-dark pt-4">
+                <h3 className="font-semibold text-text-light-primary dark:text-text-dark-primary mb-3">最近の活動</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 text-sm">
-                    <svg className="w-5 h-5 text-[#d97706] mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-primary mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                     <div className="flex-1">
-                      <p className="text-gray-900">新しい写真を投稿しました『桜の季節』</p>
-                      <p className="text-gray-500 text-xs">2時間前</p>
+                      <p className="text-text-light-primary dark:text-text-dark-primary">新しい写真を投稿しました『桜の季節』</p>
+                      <p className="text-text-light-secondary dark:text-text-dark-secondary text-xs">2時間前</p>
                     </div>
-                    <span className="text-[#16a34a] font-medium">+10ポイント</span>
+                    <span className="text-green-600 dark:text-green-400 font-medium">+10ポイント</span>
                   </div>
 
                   <div className="flex items-start gap-3 text-sm">
-                    <svg className="w-5 h-5 text-[#d97706] mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-primary mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
                     </svg>
                     <div className="flex-1">
-                      <p className="text-gray-900">『手作りセラミックボウル』にレビューを投稿しました</p>
-                      <p className="text-gray-500 text-xs">昨日</p>
+                      <p className="text-text-light-primary dark:text-text-dark-primary">『手作りセラミックボウル』にレビューを投稿しました</p>
+                      <p className="text-text-light-secondary dark:text-text-dark-secondary text-xs">昨日</p>
                     </div>
-                    <span className="text-[#16a34a] font-medium">+5ポイント</span>
+                    <span className="text-green-600 dark:text-green-400 font-medium">+5ポイント</span>
                   </div>
                 </div>
               </div>
