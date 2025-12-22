@@ -36,65 +36,61 @@ export default function ProfilePage() {
 
     if (data) {
       setProfile(data);
+      
+      // Fetch user activities
+      const { data: actData } = await supabase
+        .from('activities')
+        .select('*')
+        .eq('user_id', data.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (actData) {
+        setActivities(actData);
+      }
     }
     setLoading(false);
   };
 
-  const mockActivities = [
-    {
-      id: '1',
-      type: 'photo',
-      title: '新しい写真を投稿しました',
-      time: '2時間前',
-      icon: 'photo_camera'
-    },
-    {
-      id: '2',
-      type: 'community',
-      title: '「東京ハイキングクラブ」コミュニティに参加しました',
-      time: '昨日',
-      icon: 'groups'
-    },
-    {
-      id: '3',
-      type: 'challenge',
-      title: 'チャレンジ「ウィークリーフォト」を完了しました',
-      time: '3日前',
-      icon: 'flag'
-    },
-    {
-      id: '4',
-      type: 'skill',
-      title: '新しいスキル「写真編集」を追加しました',
-      time: '5日前',
-      icon: 'emoji_objects'
-    },
-  ];
-
-  const getActivityIcon = (icon: string) => {
+  const getActivityIcon = (activityType: string) => {
     const iconMap: { [key: string]: JSX.Element } = {
-      photo_camera: (
+      photo_uploaded: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
         </svg>
       ),
-      groups: (
+      community_joined: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
         </svg>
       ),
-      flag: (
+      challenge_completed: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd" />
         </svg>
       ),
-      emoji_objects: (
+      skill_added: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
         </svg>
       ),
     };
-    return iconMap[icon] || iconMap.photo_camera;
+    return iconMap[activityType] || iconMap.photo_uploaded;
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins}分前`;
+    if (diffHours < 24) return `${diffHours}時間前`;
+    if (diffDays === 1) return '昨日';
+    if (diffDays < 7) return `${diffDays}日前`;
+    return date.toLocaleDateString('ja-JP');
   };
 
   if (loading) {
@@ -113,18 +109,18 @@ export default function ProfilePage() {
               <div className="text-center mb-6">
                 <div className="size-32 rounded-full bg-gradient-to-br from-[#c89968] to-[#ec6d13] mx-auto mb-4"></div>
                 <h2 className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary mb-1">
-                  田中 さくら
+                  {profile?.full_name || 'ユーザー'}
                 </h2>
                 <p className="text-text-light-secondary dark:text-text-dark-secondary mb-2">
                   @{username}
                 </p>
                 <span className="inline-block px-3 py-1 rounded-full bg-[#c89968]/20 text-[#c89968] text-sm font-medium">
-                  コミュニティリーダー
+                  メンバー
                 </span>
               </div>
 
               <p className="text-text-light-secondary dark:text-text-dark-secondary text-center mb-6">
-                東京在住のデザイナー。ミニマリズムと自然からインスピレーションを得ています。週末はハイキングと写真撮影を楽しんでいます。
+                {profile?.bio || 'このユーザーはまだ自己紹介を書いていません。'}
               </p>
 
               <div className="flex gap-2 mb-6">
@@ -151,15 +147,15 @@ export default function ProfilePage() {
               <div className="border-t border-border-light dark:border-border-dark pt-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-text-light-secondary dark:text-text-dark-secondary">フォロワー</span>
-                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">1,204</span>
+                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">{profile?.followers_count || 0}</span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-text-light-secondary dark:text-text-dark-secondary">投稿</span>
-                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">86</span>
+                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">{profile?.posts_count || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-text-light-secondary dark:text-text-dark-secondary">貢献ポイント</span>
-                  <span className="font-bold text-primary">2,450</span>
+                  <span className="font-bold text-primary">{profile?.contribution_points || 0}</span>
                 </div>
               </div>
             </div>
@@ -194,29 +190,40 @@ export default function ProfilePage() {
 
             {/* Activity Feed */}
             <div className="space-y-4">
-              {mockActivities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-4 p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
-                    {getActivityIcon(activity.icon)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-text-light-primary dark:text-text-dark-primary mb-1">
-                      {activity.title}
-                    </p>
-                    <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
-                      {activity.time}
-                    </p>
-                  </div>
-                  <button className="text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+              {activities.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="w-24 h-24 mx-auto mb-4 text-text-light-secondary dark:text-text-dark-secondary opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <p className="text-text-light-secondary dark:text-text-dark-secondary">
+                    まだアクティビティがありません
+                  </p>
                 </div>
-              ))}
+              ) : (
+                activities.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-4 p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark hover:shadow-md transition-shadow cursor-pointer"
+                  >
+                    <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0">
+                      {getActivityIcon(activity.activity_type)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-text-light-primary dark:text-text-dark-primary mb-1">
+                        {activity.description}
+                      </p>
+                      <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
+                        {formatTimeAgo(activity.created_at)}
+                      </p>
+                    </div>
+                    <button className="text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

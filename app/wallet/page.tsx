@@ -42,8 +42,8 @@ export default function Wallet() {
       .single();
 
     if (profile) {
-      setWnpPoints(profile.wnp_points || 12405);
-      setOntTokens(profile.ont_tokens || 3000);
+      setWnpPoints(profile.wnp_points || 0);
+      setOntTokens(profile.ont_tokens || 0);
     }
 
     // Fetch transactions
@@ -51,7 +51,7 @@ export default function Wallet() {
       .from('wallet_transactions')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
+      .order('created_at', { ascending: false})
       .limit(50);
 
     if (txData) {
@@ -60,45 +60,6 @@ export default function Wallet() {
 
     setLoading(false);
   };
-
-  const mockTransactions = [
-    {
-      id: '1',
-      type: 'gift',
-      description: '中村 優太さんからギフト',
-      amount: 500,
-      currency: 'WNP',
-      date: '2023年10月26日',
-      isPositive: true
-    },
-    {
-      id: '2',
-      type: 'like',
-      description: '投稿への「いいね！」',
-      amount: 10,
-      currency: 'WNP',
-      date: '2023年10月25日',
-      isPositive: true
-    },
-    {
-      id: '3',
-      type: 'exchange',
-      description: 'ONTへの変換',
-      amount: -1000,
-      currency: 'WNP',
-      date: '2023年10月24日',
-      isPositive: false
-    },
-    {
-      id: '4',
-      type: 'login_bonus',
-      description: 'ログインボーナス',
-      amount: 5,
-      currency: 'WNP',
-      date: '2023年10月23日',
-      isPositive: true
-    },
-  ];
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -132,12 +93,21 @@ export default function Wallet() {
     }
   };
 
-  const filteredTransactions = mockTransactions.filter((tx) => {
+  const filteredTransactions = transactions.filter((tx) => {
     if (activeTab === 'all') return true;
-    if (activeTab === 'earned') return tx.isPositive;
-    if (activeTab === 'used') return !tx.isPositive;
+    if (activeTab === 'earned') return tx.amount > 0;
+    if (activeTab === 'used') return tx.amount < 0;
     return true;
   });
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
@@ -204,46 +174,49 @@ export default function Wallet() {
 
         {/* Transactions */}
         <div className="space-y-3">
-          {filteredTransactions.map((tx) => (
-            <div
-              key={tx.id}
-              className="flex items-center justify-between p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark"
-            >
-              <div className="flex items-center gap-4">
-                <div className={`flex size-12 items-center justify-center rounded-full ${
-                  tx.isPositive
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                    : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                }`}>
-                  {getIcon(tx.type)}
-                </div>
-                <div>
-                  <p className="font-medium text-text-light-primary dark:text-text-dark-primary">
-                    {tx.description}
-                  </p>
-                  <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
-                    {tx.date}
-                  </p>
-                </div>
-              </div>
-              <div className={`text-lg font-bold ${
-                tx.isPositive
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
-              }`}>
-                {tx.isPositive ? '+' : ''}{tx.amount} {tx.currency}
-              </div>
+          {filteredTransactions.length === 0 ? (
+            <div className="text-center py-12">
+              <svg className="w-24 h-24 mx-auto mb-4 text-text-light-secondary dark:text-text-dark-secondary opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p className="text-text-light-secondary dark:text-text-dark-secondary">
+                取引履歴がありません
+              </p>
             </div>
-          ))}
+          ) : (
+            filteredTransactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex items-center justify-between p-4 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`flex size-12 items-center justify-center rounded-full ${
+                    tx.amount > 0
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                  }`}>
+                    {getIcon(tx.transaction_type)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-text-light-primary dark:text-text-dark-primary">
+                      {tx.description}
+                    </p>
+                    <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
+                      {formatDate(tx.created_at)}
+                    </p>
+                  </div>
+                </div>
+                <div className={`text-lg font-bold ${
+                  tx.amount > 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {tx.amount > 0 ? '+' : ''}{tx.amount} {tx.currency_type}
+                </div>
+              </div>
+            ))
+          )}
         </div>
-
-        {filteredTransactions.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-text-light-secondary dark:text-text-dark-secondary">
-              取引履歴がありません
-            </p>
-          </div>
-        )}
       </main>
     </div>
   );

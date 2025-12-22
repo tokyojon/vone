@@ -61,73 +61,6 @@ export default function Marketplace() {
     { id: 'manual_labor', name: '肉体労働' },
   ];
 
-  const mockListings = [
-    {
-      id: '1',
-      title: 'Need help with garden design',
-      description: 'Gardening, Design, Outdoors',
-      user: 'Yuki Tanaka',
-      category: 'gardening',
-      image: 'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=400'
-    },
-    {
-      id: '2',
-      title: 'Looking for a Japanese tutor',
-      description: 'Language, Tutoring, Japanese',
-      user: 'Haru Ito',
-      category: 'tutoring',
-      image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400'
-    },
-    {
-      id: '3',
-      title: 'Dog walker needed for weekday afternoons',
-      description: 'Pets, Dog Walking',
-      user: 'Airi Sato',
-      category: 'pets',
-      image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400'
-    },
-    {
-      id: '4',
-      title: 'Help moving a sofa',
-      description: 'Manual Labor, Moving',
-      user: 'Kaito Suzuki',
-      category: 'manual_labor',
-      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400'
-    },
-    {
-      id: '5',
-      title: 'Seeking a photographer for a small event',
-      description: 'Photography, Events',
-      user: 'Rin Takahashi',
-      category: 'photography',
-      image: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=400'
-    },
-    {
-      id: '6',
-      title: 'Website design consultation',
-      description: 'Web Design, UX, UI',
-      user: 'Sota Watanabe',
-      category: 'web_design',
-      image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=400'
-    },
-    {
-      id: '7',
-      title: 'Need someone to assemble IKEA furniture',
-      description: 'Furniture, Assembly',
-      user: 'Mei Nakamura',
-      category: 'manual_labor',
-      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400'
-    },
-    {
-      id: '8',
-      title: 'Requesting a hand-made birthday cake',
-      description: 'Baking, Cooking, Desserts',
-      user: 'Ren Yamamoto',
-      category: 'cooking',
-      image: 'https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=400'
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
       <Header />
@@ -192,17 +125,38 @@ export default function Marketplace() {
           <div className="text-center py-12">
             <p className="text-text-light-secondary dark:text-text-dark-secondary">読み込み中...</p>
           </div>
+        ) : filteredListings.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="max-w-md mx-auto">
+              <svg className="w-24 h-24 mx-auto mb-4 text-text-light-secondary dark:text-text-dark-secondary opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-text-light-secondary dark:text-text-dark-secondary mb-2">
+                {searchTerm || selectedCategory !== 'all' 
+                  ? '該当する出品が見つかりませんでした。'
+                  : 'まだ出品がありません'
+                }
+              </p>
+              <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary mb-4">
+                最初の出品者になりませんか？
+              </p>
+              <button className="btn-primary">
+                サービスを出品する
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {mockListings.map((listing) => (
+            {filteredListings.map((listing) => (
               <div
                 key={listing.id}
                 className="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
               >
-                <div
-                  className="h-48 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${listing.image})` }}
-                ></div>
+                <div className="h-48 bg-gradient-to-br from-border-light to-border-light/50 dark:from-border-dark dark:to-border-dark/50 flex items-center justify-center">
+                  <svg className="w-16 h-16 text-text-light-secondary dark:text-text-dark-secondary opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                  </svg>
+                </div>
                 <div className="p-4">
                   <h3 className="font-bold text-text-light-primary dark:text-text-dark-primary mb-2 line-clamp-2">
                     {listing.title}
@@ -211,22 +165,14 @@ export default function Marketplace() {
                     {listing.description}
                   </p>
                   <div className="flex items-center gap-2">
-                    <div className="size-8 rounded-full bg-border-light dark:bg-border-dark"></div>
+                    <div className="size-8 rounded-full bg-gradient-to-br from-[#c89968] to-[#ec6d13]"></div>
                     <span className="text-sm font-medium text-text-light-primary dark:text-text-dark-primary">
-                      {listing.user}
+                      {listing.profiles?.full_name || listing.profiles?.username || 'Unknown'}
                     </span>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {filteredListings.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <p className="text-text-light-secondary dark:text-text-dark-secondary">
-              該当する出品が見つかりませんでした。
-            </p>
           </div>
         )}
       </main>
