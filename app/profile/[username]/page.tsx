@@ -52,46 +52,9 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
-<<<<<<< HEAD
   const getActivityIcon = (activityType: string) => {
-    const iconMap: { [key: string]: JSX.Element } = {
+    const iconMap: { [key: string]: ReactElement } = {
       photo_uploaded: (
-=======
-  const mockActivities = [
-    {
-      id: '1',
-      type: 'photo',
-      title: '新しい写真を投稿しました',
-      time: '2時間前',
-      icon: 'photo_camera'
-    },
-    {
-      id: '2',
-      type: 'community',
-      title: '「東京ハイキングクラブ」コミュニティに参加しました',
-      time: '昨日',
-      icon: 'groups'
-    },
-    {
-      id: '3',
-      type: 'challenge',
-      title: 'チャレンジ「ウィークリーフォト」を完了しました',
-      time: '3日前',
-      icon: 'flag'
-    },
-    {
-      id: '4',
-      type: 'skill',
-      title: '新しいスキル「写真編集」を追加しました',
-      time: '5日前',
-      icon: 'emoji_objects'
-    },
-  ];
-
-  const getActivityIcon = (icon: string): ReactElement => {
-    const iconMap: Record<string, ReactElement> = {
-      photo_camera: (
->>>>>>> c48791d790b42ae33aff4554f3f95c19e54758ad
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
         </svg>
