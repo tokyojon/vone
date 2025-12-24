@@ -47,18 +47,67 @@ export default function Wallet() {
     }
 
     // Fetch transactions
-    const { data: txData } = await supabase
+    const { data: txData, count } = await supabase
       .from('wallet_transactions')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false})
+      .order('created_at', { ascending: false })
       .limit(50);
 
-    if (txData) {
+    if (txData && txData.length > 0) {
       setTransactions(txData);
+    } else if (count === 0) {
+      // Auto-grant Welcome Bonus if no transactions exist
+      await grantWelcomeBonus(user.id);
+      return; // recursion will happen via state update or re-fetch
     }
 
     setLoading(false);
+  };
+
+  const grantWelcomeBonus = async (userId: string) => {
+    try {
+      // 1. Create Transaction
+      const { error: txError } = await supabase
+        .from('wallet_transactions')
+        .insert({
+          user_id: userId,
+          transaction_type: 'gift',
+          currency_type: 'WNP',
+          amount: 500,
+          description: '🎉 ウェルカムボーナス',
+        });
+
+      if (txError) throw txError;
+
+      // 2. Update Profile Balance
+      const { error: profileError } = await supabase.rpc('increment_wnp', { 
+        row_id: userId, 
+        amount: 500 
+      });
+      
+      // Fallback if RPC doesn't exist (update directly)
+      if (profileError) {
+         const { data: currentProfile } = await supabase
+           .from('profiles')
+           .select('wnp_points')
+           .eq('id', userId)
+           .single();
+         
+         if (currentProfile) {
+            await supabase
+              .from('profiles')
+              .update({ wnp_points: (currentProfile.wnp_points || 0) + 500 })
+              .eq('id', userId);
+         }
+      }
+
+      // 3. Reload Data
+      checkUser();
+    } catch (e) {
+      console.error('Error granting bonus:', e);
+      setLoading(false);
+    }
   };
 
   const getIcon = (type: string) => {
@@ -126,6 +175,15 @@ export default function Wallet() {
           <h1 className="text-4xl font-black text-text-light-primary dark:text-text-dark-primary">
             ウォレット
           </h1>
+          <button 
+            onClick={() => { setLoading(true); checkUser(); }}
+            className="ml-auto p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            title="更新"
+          >
+            <svg className={`w-5 h-5 text-text-light-secondary ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
 
         {/* Balance Card */}
