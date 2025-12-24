@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   notification_email BOOLEAN DEFAULT true,
   account_public BOOLEAN DEFAULT true,
   account_blocked BOOLEAN DEFAULT false,
+  onboarding_completed BOOLEAN DEFAULT FALSE,
   
   -- Dashboard customization
   dashboard_widgets JSONB DEFAULT '[]'::jsonb,
@@ -56,6 +57,41 @@ CREATE POLICY "Users can insert own profile"
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
+
+-- ============================================
+-- ONBOARDING
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS public.onboarding_responses (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  relationship_status TEXT,
+  location TEXT,
+  good_traits TEXT[],
+  bad_traits TEXT[],
+  social_weekend TEXT,
+  social_recharge TEXT,
+  vacation_type TEXT,
+  vacation_activity TEXT,
+  planning_style TEXT,
+  planning_preference TEXT,
+  hobby_interest TEXT,
+  hobby_activity TEXT,
+  outlook TEXT,
+  generated_character_profile TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.onboarding_responses ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own onboarding responses"
+  ON public.onboarding_responses FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own onboarding responses"
+  ON public.onboarding_responses FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
 -- WALLET & TRANSACTIONS
