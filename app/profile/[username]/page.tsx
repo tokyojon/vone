@@ -53,7 +53,7 @@ export default function ProfilePage() {
   };
 
   const getActivityIcon = (activityType: string) => {
-    const iconMap: { [key: string]: JSX.Element } = {
+    const iconMap: { [key: string]: ReactElement } = {
       photo_uploaded: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
           <path
