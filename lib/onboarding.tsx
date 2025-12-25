@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { generateCharacterProfile, saveCharacterProfile, CharacterProfile } from './gemini';
 
 interface OnboardingModalProps {
   userId: string;
@@ -39,6 +40,8 @@ const BAD_TRAITS = ['頑固', '短気', '片付けが苦手', '人見知り'];
 export default function OnboardingModal({ userId, onComplete, onClose }: OnboardingModalProps) {
   const [currentCard, setCurrentCard] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [characterProfile, setCharacterProfile] = useState<CharacterProfile | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   const [formData, setFormData] = useState({
     relationship_status: '',
@@ -89,30 +92,45 @@ export default function OnboardingModal({ userId, onComplete, onClose }: Onboard
   const handleSubmit = async () => {
     setLoading(true);
 
-    const { error: onboardingError } = await supabase
-      .from('onboarding_responses')
-      .insert({
-        user_id: userId,
-        ...formData,
-        avatar_placeholder: 'kawaii-character',
-      });
+    try {
+      // Save onboarding responses first
+      const { error: onboardingError } = await supabase
+        .from('onboarding_responses')
+        .insert({
+          user_id: userId,
+          ...formData,
+          avatar_placeholder: 'kawaii-character',
+        });
 
-    if (onboardingError) {
-      console.error('Error saving onboarding:', onboardingError);
+      if (onboardingError) {
+        console.error('Error saving onboarding:', onboardingError);
+        throw onboardingError;
+      }
+
+      // Generate character profile using Gemini
+      const profile = await generateCharacterProfile(formData);
+      setCharacterProfile(profile);
+      setShowProfile(true);
+
+      // Save the character profile to the database
+      await saveCharacterProfile(userId, profile);
+    } catch (error) {
+      console.error('Error in onboarding submission:', error);
+      // Fallback: just mark onboarding as completed
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ onboarding_completed: true })
+        .eq('id', userId);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+      }
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ onboarding_completed: true })
-      .eq('id', userId);
-
-    if (profileError) {
-      console.error('Error updating profile:', profileError);
-    }
-
-    setLoading(false);
+  const handleProfileComplete = () => {
     onComplete();
   };
 
