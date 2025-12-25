@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState, ReactElement } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useParams, useRouter } from 'next/navigation';
-import Header from '@/components/Header';
+import { useEffect, useState, ReactElement } from "react";
+import { supabase } from "@/lib/supabase";
+import { useParams, useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 interface Activity {
   id: string;
@@ -16,11 +16,11 @@ export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
   const username = params.username as string;
-  
+
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [activeTab, setActiveTab] = useState('contributions');
+  const [activeTab, setActiveTab] = useState("contributions");
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
@@ -29,22 +29,22 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('username', username)
+      .from("profiles")
+      .select("*")
+      .eq("username", username)
       .single();
 
     if (data) {
       setProfile(data);
-      
+
       // Fetch user activities
       const { data: actData } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('user_id', data.id)
-        .order('created_at', { ascending: false })
+        .from("activities")
+        .select("*")
+        .eq("user_id", data.id)
+        .order("created_at", { ascending: false })
         .limit(10);
-      
+
       if (actData) {
         setActivities(actData);
       }
@@ -56,7 +56,11 @@ export default function ProfilePage() {
     const iconMap: { [key: string]: ReactElement } = {
       photo_uploaded: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+            clipRule="evenodd"
+          />
         </svg>
       ),
       community_joined: (
@@ -66,7 +70,11 @@ export default function ProfilePage() {
       ),
       challenge_completed: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z"
+            clipRule="evenodd"
+          />
         </svg>
       ),
       skill_added: (
@@ -88,13 +96,17 @@ export default function ProfilePage() {
 
     if (diffMins < 60) return `${diffMins}分前`;
     if (diffHours < 24) return `${diffHours}時間前`;
-    if (diffDays === 1) return '昨日';
+    if (diffDays === 1) return "昨日";
     if (diffDays < 7) return `${diffDays}日前`;
-    return date.toLocaleDateString('ja-JP');
+    return date.toLocaleDateString("ja-JP");
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">読み込み中...</div>;
+    return (
+      <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
+        読み込み中...
+      </div>
+    );
   }
 
   return (
@@ -109,7 +121,7 @@ export default function ProfilePage() {
               <div className="text-center mb-6">
                 <div className="size-32 rounded-full bg-gradient-to-br from-[#c89968] to-[#ec6d13] mx-auto mb-4"></div>
                 <h2 className="text-2xl font-bold text-text-light-primary dark:text-text-dark-primary mb-1">
-                  {profile?.full_name || 'ユーザー'}
+                  {profile?.full_name || "ユーザー"}
                 </h2>
                 <p className="text-text-light-secondary dark:text-text-dark-secondary mb-2">
                   @{username}
@@ -120,7 +132,7 @@ export default function ProfilePage() {
               </div>
 
               <p className="text-text-light-secondary dark:text-text-dark-secondary text-center mb-6">
-                {profile?.bio || 'このユーザーはまだ自己紹介を書いていません。'}
+                {profile?.bio || "このユーザーはまだ自己紹介を書いていません。"}
               </p>
 
               <div className="flex gap-2 mb-6">
@@ -128,17 +140,21 @@ export default function ProfilePage() {
                   onClick={() => setIsFollowing(!isFollowing)}
                   className={`flex-1 py-2 px-4 rounded-xl font-medium transition-colors ${
                     isFollowing
-                      ? 'bg-border-light dark:bg-border-dark text-text-light-primary dark:text-text-dark-primary'
-                      : 'bg-[#c89968] text-white hover:bg-[#b8895a]'
+                      ? "bg-border-light dark:bg-border-dark text-text-light-primary dark:text-text-dark-primary"
+                      : "bg-[#c89968] text-white hover:bg-[#b8895a]"
                   }`}
                 >
-                  {isFollowing ? 'フォロー中' : 'フォローする'}
+                  {isFollowing ? "フォロー中" : "フォローする"}
                 </button>
                 <button className="flex-1 py-2 px-4 rounded-xl font-medium bg-border-light dark:bg-border-dark text-text-light-primary dark:text-text-dark-primary hover:bg-border-light/70 dark:hover:bg-border-dark/70 transition-colors">
                   メッセージを...
                 </button>
                 <button className="p-2 rounded-xl bg-border-light dark:bg-border-dark hover:bg-border-light/70 dark:hover:bg-border-dark/70 transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                   </svg>
                 </button>
@@ -146,16 +162,28 @@ export default function ProfilePage() {
 
               <div className="border-t border-border-light dark:border-border-dark pt-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-text-light-secondary dark:text-text-dark-secondary">フォロワー</span>
-                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">{profile?.followers_count || 0}</span>
+                  <span className="text-text-light-secondary dark:text-text-dark-secondary">
+                    フォロワー
+                  </span>
+                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">
+                    {profile?.followers_count || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-text-light-secondary dark:text-text-dark-secondary">投稿</span>
-                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">{profile?.posts_count || 0}</span>
+                  <span className="text-text-light-secondary dark:text-text-dark-secondary">
+                    投稿
+                  </span>
+                  <span className="font-bold text-text-light-primary dark:text-text-dark-primary">
+                    {profile?.posts_count || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-text-light-secondary dark:text-text-dark-secondary">貢献ポイント</span>
-                  <span className="font-bold text-primary">{profile?.contribution_points || 0}</span>
+                  <span className="text-text-light-secondary dark:text-text-dark-secondary">
+                    貢献ポイント
+                  </span>
+                  <span className="font-bold text-primary">
+                    {profile?.contribution_points || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -166,18 +194,18 @@ export default function ProfilePage() {
             {/* Tabs */}
             <div className="flex gap-6 mb-6 border-b border-border-light dark:border-border-dark">
               {[
-                { id: 'contributions', label: '貢献ログ' },
-                { id: 'skills', label: 'スキル' },
-                { id: 'family', label: '家族' },
-                { id: 'community', label: 'コミュニティ' },
+                { id: "contributions", label: "貢献ログ" },
+                { id: "skills", label: "スキル" },
+                { id: "family", label: "家族" },
+                { id: "community", label: "コミュニティ" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`pb-4 px-2 font-medium transition-colors relative ${
                     activeTab === tab.id
-                      ? 'text-primary'
-                      : 'text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary'
+                      ? "text-primary"
+                      : "text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary"
                   }`}
                 >
                   {tab.label}
@@ -192,8 +220,18 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {activities.length === 0 ? (
                 <div className="text-center py-12">
-                  <svg className="w-24 h-24 mx-auto mb-4 text-text-light-secondary dark:text-text-dark-secondary opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg
+                    className="w-24 h-24 mx-auto mb-4 text-text-light-secondary dark:text-text-dark-secondary opacity-50"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
                   </svg>
                   <p className="text-text-light-secondary dark:text-text-dark-secondary">
                     まだアクティビティがありません
@@ -217,8 +255,18 @@ export default function ProfilePage() {
                       </p>
                     </div>
                     <button className="text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </button>
                   </div>
