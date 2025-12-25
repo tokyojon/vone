@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import Header from '@/components/Header';
 import Link from 'next/link';
+import OnboardingModal from '@/lib/onboarding';
 
 // Interfaces matching your DB schema
 interface Profile {
@@ -15,6 +16,7 @@ interface Profile {
   reviews_posted: number;
   followers_count: number;
   posts_count: number;
+  onboarding_completed?: boolean;
 }
 
 interface Activity {
@@ -51,7 +53,27 @@ export default function Dashboard() {
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
   const [listingsCount, setListingsCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    // Refresh the profile data to get updated onboarding status
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('username, contribution_points, tasks_completed, reviews_posted, followers_count, posts_count, onboarding_completed')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+    }
+  };
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,11 +89,17 @@ export default function Dashboard() {
       // 1. Fetch Profile Stats
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('username, contribution_points, tasks_completed, reviews_posted, followers_count, posts_count')
+        .select('username, contribution_points, tasks_completed, reviews_posted, followers_count, posts_count, onboarding_completed')
         .eq('id', user.id)
         .single();
       
-      if (profileData) setProfile(profileData);
+      if (profileData) {
+        setProfile(profileData);
+        // Check if onboarding is needed
+        if (!profileData.onboarding_completed) {
+          setShowOnboarding(true);
+        }
+      }
 
       // 2. Fetch Active Listings Count
       const { count: lCount } = await supabase
@@ -378,6 +406,15 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Modal */}
+      {showOnboarding && user && (
+        <OnboardingModal
+          userId={user.id}
+          onComplete={handleOnboardingComplete}
+          onClose={handleOnboardingClose}
+        />
+      )}
     </div>
   );
 }
