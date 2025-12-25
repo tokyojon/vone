@@ -6,44 +6,6 @@ import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import Header from '@/components/Header';
 import Link from 'next/link';
-import OnboardingModal from '@/lib/onboarding';
-
-// Interfaces matching your DB schema
-interface Profile {
-  username: string;
-  contribution_points: number;
-  tasks_completed: number;
-  reviews_posted: number;
-  followers_count: number;
-  posts_count: number;
-  onboarding_completed?: boolean;
-}
-
-interface Activity {
-  id: string;
-  activity_type: string;
-  description: string;
-  points_earned: number;
-  created_at: string;
-}
-
-interface Notification {
-  id: string;
-  type: string;
-  message: string;
-  created_at: string;
-  from_user: {
-    username: string;
-    full_name: string;
-  } | null;
-}
-
-interface TrendingPost {
-  id: string;
-  title: string;
-  likes_count: number;
-  image_url: string | null;
-}
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -165,21 +127,6 @@ export default function Dashboard() {
       authListener.subscription.unsubscribe();
     };
   }, [router]);
-
-  // Helper to format relative time
-  const timeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (seconds < 60) return 'たった今';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}分前`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}時間前`;
-    const days = Math.floor(hours / 24);
-    return `${days}日前`;
-  };
 
   if (loading) {
     return (
